@@ -55,7 +55,7 @@ The connection to the server localhost:8080 was refused - did you specify the ri
 ```
 This looks to be a problem with how kubectl is called.
 
-This is quite a common problem and can be solved following the instructions in [this post](https://discuss.kubernetes.io/t/couldnt-get-current-server-api-group-list-get-http-localhost-8080-api-timeout-32s-dial-tcp-127-0-0-1-connect-connection-refused/25471/5).
+This is quite a common problem and can be solved following the instructions in [this post](https://discuss.kubernetes.io/t/couldnt-get-current-server-api-group-list-get-http-localhost-8080-api-timeout-32s-dial-tcp-127-0-0-1-connect-connection-refused/25471/5). It's also worth noting that at the end of the init - this appears.
 
 ```
 mkdir -p $HOME/.kube
@@ -81,3 +81,6 @@ There seems to be two potential fixes (I've automated number 2 as per the above)
   2. Change the config.toml as per this advice from [stackoverflow](https://stackoverflow.com/a/74695838/486670)
 
 In either case this took me a **LONG** time to fix and put me off kubernetes. The logs were unclear and revealed very little and ultimately the defaults caused functionality problems not ideal. I wonder whether this is consistent with other operating systems.
+
+### Other notes
+You can reset like this: `kubeadm reset`.
