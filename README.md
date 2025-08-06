@@ -33,4 +33,4 @@ Finally after all this we have a static, no IPv6 wired system which I can transp
 | IP Forwarding | Create a new file in [/etc/sysctl.d/10-ip-forwarding.conf](configs/10-ip-forwarding.conf). Run `sysctl --system` |
 | No swap | swapoff -a<br>sed -i '/ swap / s/^/#/' /etc/fstab |
 | Install containerd | `apt install -y containerd; systemctl restart containerd; systemctl enable containerd` |
-| Enable bridge-nf-call-iptables | `sysctl net.bridge.bridge-nf-call-iptables || modprobe br_netfilter` | 
+| Enable bridge-nf-call-iptables | `sysctl net.bridge.bridge-nf-call-iptables \|\| modprobe br_netfilter` | 
