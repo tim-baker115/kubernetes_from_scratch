@@ -55,8 +55,10 @@ The connection to the server localhost:8080 was refused - did you specify the ri
 ```
 This looks to be a problem with how kubectl is called.
 
-This is quite a common problem and can be solved following the instructions in [this post](https://discuss.kubernetes.io/t/couldnt-get-current-server-api-group-list-get-http-localhost-8080-api-timeout-32s-dial-tcp-127-0-0-1-connect-connection-refused/25471/5). It's also worth noting that at the end of the init - this appears.
+This is quite a common problem and can be solved following the instructions in [this post](https://discuss.kubernetes.io/t/couldnt-get-current-server-api-group-list-get-http-localhost-8080-api-timeout-32s-dial-tcp-127-0-0-1-connect-connection-refused/25471/5).
+Run this to make it permenant: `echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bashrc`
 
+It's also worth noting that at the end of `kubeadm init` - this appears!
 ```
 mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
