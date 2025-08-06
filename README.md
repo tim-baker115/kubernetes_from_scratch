@@ -23,6 +23,7 @@ Finally after all this we have a bootable, fully functiona ubuntu server... Usin
 | IPv6 is everywhere?!| Disable in grub.<br>edit `/etc/default/grub` to have `GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"` in.<br>run `update-grub` |
 | DHCP is set | Change the netcfg to be static (see [/etc/netplan/01-netcfg.yaml](configs/01-netcfg.yaml#L6-L12)). |
 | Update the OS | `apt update && sudo apt full-upgrade -y` |
+| Install some packages | `apt install -y htop git curl wget vim tmux` |
 
 Finally after all this we have a static, no IPv6 wired system which I can transport to my home and plug in and ssh into.
 
@@ -31,3 +32,4 @@ Finally after all this we have a static, no IPv6 wired system which I can transp
 | --------- | ------- |
 | IP Forwarding | Create a new file in [/etc/sysctl.d/10-ip-forwarding.conf](configs/10-ip-forwarding.conf). Run `sysctl --system` |
 | No swap | swapoff -a<br>sed -i '/ swap / s/^/#/' /etc/fstab |
+| Install containerd | `apt install -y containerd; systemctl restart containerd; systemctl enable containerd` |
