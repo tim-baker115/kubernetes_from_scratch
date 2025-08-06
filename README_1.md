@@ -28,7 +28,7 @@ I0806 12:30:23.084037    4436 version.go:256] remote version is much newer: v1.3
 W0806 12:30:23.612342    4436 checks.go:844] detected that the sandbox image "registry.k8s.io/pause:3.8" of the container runtime is inconsistent with that used by kubeadm.It is recommended to use "registry.k8s.io/pause:3.9" as the CRI sandbox image.
 ```
 Fixing this warning (safe to ignore).
-There's a snippet on how to set the sandbox image in this url https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd.
+There's a snippet on how to set the sandbox image in this url [override-pause-image-containerd](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd).
 It's pretty much the following:
 ```
 ctr image pull registry.k8s.io/pause:3.9 #User containerd to pull the image
@@ -41,7 +41,8 @@ kubeadm reset -f #Reset the init process
 kubeadm init #Init again!
 ```
 
-###Running kubernetes
+### Running kubernetes
+
 Run the following: `kubectl get nodes` to get the nodes. This resulted in the following error:
 ```
 root@labbox:~$ kubectl get nodes
@@ -52,7 +53,7 @@ E0806 12:53:54.004055   15281 memcache.go:265] couldn't get current server API g
 E0806 12:53:54.005390   15281 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
 The connection to the server localhost:8080 was refused - did you specify the right host or port?
 ```
-This looks to be a problem with how kubectl is falled. This is quite a common problem and can be solved following the instructions in this post: https://discuss.kubernetes.io/t/couldnt-get-current-server-api-group-list-get-http-localhost-8080-api-timeout-32s-dial-tcp-127-0-0-1-connect-connection-refused/25471/5
+This looks to be a problem with how kubectl is falled. This is quite a common problem and can be solved following the instructions in [this post](https://discuss.kubernetes.io/t/couldnt-get-current-server-api-group-list-get-http-localhost-8080-api-timeout-32s-dial-tcp-127-0-0-1-connect-connection-refused/25471/5).
 
 ```
 mkdir -p $HOME/.kube
