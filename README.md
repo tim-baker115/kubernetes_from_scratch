@@ -10,7 +10,7 @@ The aim of this repo will be to document my progress learning kubernetes. I have
 | No computer (I use a laptop for work) | Buy a cheap laptop from ebay (recommend lenovo thinkcentre with a lot of memory). |
 | No keyboard           | Oh dear... I had a feeling this might happen. Create an automated boot ISO...        |
 | No video          | I have faith the video works, but my TV was running at 4k... Find an alternateive monitor (my neighbors helped).   |
-| USB stick didn't work/boot          | The automated cloudinit stuff I'd googled didn't work with the uefi boot... Back to square one.        |
+| USB stick didn't work/boot          | The [automated cloudinit stuff](https://canonical-subiquity.readthedocs-hosted.com/en/latest/howto/autoinstall-quickstart.html) I'd googled didn't work with the uefi boot... Back to square one.        |
 | Need a keyboard now | Buy a keyboard (a cheap one).        |
 | USB stick still doesn't work          | Let's go back to the basics, use the basic ubuntu server image.        |
 
@@ -35,4 +35,4 @@ Finally after all this we have a static, no IPv6 wired system which I can transp
 | Install containerd | `apt install -y containerd; systemctl restart containerd; systemctl enable containerd` |
 | Enable bridge-nf-call-iptables | `sysctl net.bridge.bridge-nf-call-iptables \|\| echo "br_netfilter" > /etc/modules-load.d/k8s.conf \|\| modprobe br_netfilter` |
 
-We may as well reboot at this point and make sure it all survives a reboot... 
+We may as well reboot at this point and make sure it all survives a reboot... I've asked chatGPT to make me a [validation script](validation/kubernetes_prerequisites.sh). 
