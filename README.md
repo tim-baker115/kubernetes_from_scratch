@@ -25,3 +25,9 @@ Finally after all this we have a bootable, fully functiona ubuntu server... Usin
 | Update the OS | `apt update && sudo apt full-upgrade -y` |
 
 Finally after all this we have a static, no IPv6 wired system which I can transport to my home and plug in and ssh into.
+
+### Kubernetes prerequisites
+| Prerequisite    | Solution |
+| --------- | ------- |
+| IP Forwarding | Create a new file in [/etc/sysctl.d/10-ip-forwarding.conf](configs/10-ip-forwarding.conf). Run `sysctl --system` |
+| No swap | swapoff -a<br>sed -i '/ swap / s/^/#/' /etc/fstab |
