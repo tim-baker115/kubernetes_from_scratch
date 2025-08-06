@@ -68,3 +68,16 @@ root@labbox:~$ kubectl get nodes
 NAME     STATUS     ROLES           AGE   VERSION
 labbox   NotReady   control-plane   14m   v1.30.14
 ```
+
+OK - this is good progress, but it's hugely unstable. Containers will typically remain online for minutes at a time and then suddenly break without any logs. Then the whole lot falls over....
+
+There seems to be problems with ubuntu, containerd and cgroups. [Details here](https://gjhenrique.com/cgroups-k8s/).
+
+Ultimately the fix (for me) was this: `sed -i 's/SystemdCgroup\ =\ false/SystemdCgroup\ =\ true/1' /etc/containerd/config.toml`. 
+
+There seems to be two potential fixes (I've automated number 2 as per the above). 
+
+  1. Chance the grub config as per this advice from [discussions.kubernetes.io](https://discuss.kubernetes.io/t/why-does-etcd-fail-with-debian-bullseye-kernel/19696/5).
+  2. Change the config.toml as per this advice from [stackoverflow](https://stackoverflow.com/a/74695838/486670)
+
+In either case this took me a **LONG** time to fix and put me off kubernetes. The logs were unclear and revealed very little and ultimately the defaults caused functionality problems not ideal. I wonder whether this is consistent with other operating systems.
