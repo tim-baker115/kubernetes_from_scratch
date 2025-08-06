@@ -19,13 +19,12 @@ Assuming everything is up and running we can now initialize:
 `kubeadm init`
 This paused for a brief period for me and I noticed a warning: 
 ```
-I0806 12:30:23.084037    4436 version.go:256] remote version is much newer: v1.33.3; falling back to: stable-1.30
-[init] Using Kubernetes version: v1.30.14
+[init] Using Kubernetes version: v1.33.3
 [preflight] Running pre-flight checks
 [preflight] Pulling images required for setting up a Kubernetes cluster
 [preflight] This might take a minute or two, depending on the speed of your internet connection
 [preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
-W0806 12:30:23.612342    4436 checks.go:844] detected that the sandbox image "registry.k8s.io/pause:3.8" of the container runtime is inconsistent with that used by kubeadm.It is recommended to use "registry.k8s.io/pause:3.9" as the CRI sandbox image.
+W0806 12:30:23.612342    4436 checks.go:844] detected that the sandbox image "registry.k8s.io/pause:3.9" of the container runtime is inconsistent with that used by kubeadm.It is recommended to use "registry.k8s.io/pause:3.10" as the CRI sandbox image.
 ```
 Fixing this warning (safe to ignore).
 There's a snippet on how to set the sandbox image in this url [override-pause-image-containerd](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd).
@@ -34,7 +33,7 @@ It's pretty much the following:
 ctr image pull registry.k8s.io/pause:3.9 #User containerd to pull the image
 mkdir -p /etc/containerd #Make a folder for the default config
 containerd config default \| tee /etc/containerd/config.toml #Output the current defaults to the toml file.
-sed -i 's/pause:3.8/pause:3.9/1' /etc/containerd/config.toml #Search for pause:3.8 and replace it.
+sed -i 's/pause:3.9/pause:3.10/1' /etc/containerd/config.toml #Search for pause:3.9 and replace it.
 systemctl restart containerd #Restart containerd
 systemctl restart kubelet #Restart kubelet
 kubeadm reset -f #Reset the init process
@@ -68,7 +67,7 @@ Now the same command reveals something slightly more interesting!!
 ```
 root@labbox:~$ kubectl get nodes
 NAME     STATUS     ROLES           AGE   VERSION
-labbox   NotReady   control-plane   14m   v1.30.14
+labbox   NotReady   control-plane   14m   v1.33.3
 ```
 
 OK - this is good progress, but it's hugely unstable. Containers will typically remain online for minutes at a time and then suddenly break without any logs. Then the whole lot falls over....
