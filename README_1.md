@@ -9,7 +9,7 @@ It's worth noting at this point; this is not a complete kubernetes install, we h
 | Problem    | Solution |
 | --------- | ------- |
 | Packages not available by default | Add the correct repo. |
-| No GPG key| `curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key \| sudo gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg`|
+| No GPG key| `curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key \| sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg`|
 | No repo| Add this file in [/etc/apt/sources.list.d/kubernetes.list](configs/kubernetes.list) |
 | Install missing packages| `apt-get update; apt-get install -y kubelet kubeadm kubectl`|
 | Have things installed? | `for cmd in "kubeadm version" "kubelet --version" "kubectl version --client"; do $cmd \| grep -q "1.30" && echo "$cmd ran ok" \|\| echo "something went wrong with $cmd"; done`<br>`systemctl status kubelet` |
