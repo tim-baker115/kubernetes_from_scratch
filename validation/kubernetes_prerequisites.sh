@@ -176,7 +176,7 @@ done
 echo
 
 # Essential packages installed
-for pkg in curl vim git wget htop tmux; do
+for pkg in curl vim git wget htop tmux apt-transport-https; do
   if dpkg -l "$pkg" >/dev/null 2>&1; then
     pass "Package $pkg installed"
   else
