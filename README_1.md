@@ -13,3 +13,25 @@ It's worth noting at this point; this is not a complete kubernetes install, we h
 | No repo| Add this file in [/etc/apt/sources.list.d/kubernetes.list](configs/kubernetes.list) |
 | Install missing packages| `apt-get update; apt-get install -y kubelet kubeadm kubectl`|
 | Have things installed? | `for cmd in "kubeadm version" "kubelet --version" "kubectl version --client"; do $cmd \| grep -q "1.30" && echo "$cmd ran ok" \|\| echo "something went wrong with $cmd"; done`<br>`systemctl status kubelet` |
+
+### Starting kubernetes
+Assuming everything is up and running we can now initialize:
+`kubeadm init`
+This paused for a brief period for me and I noticed a warning: 
+```
+I0806 12:30:23.084037    4436 version.go:256] remote version is much newer: v1.33.3; falling back to: stable-1.30
+[init] Using Kubernetes version: v1.30.14
+[preflight] Running pre-flight checks
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+W0806 12:30:23.612342    4436 checks.go:844] detected that the sandbox image "registry.k8s.io/pause:3.8" of the container runtime is inconsistent with that used by kubeadm.It is recommended to use "registry.k8s.io/pause:3.9" as the CRI sandbox image.
+```
+This isn't a problem as such (ignoring is fine) but I wanted to fix it. There's a snippet on how to set the sandbox image in this url https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd. It's pretty much the following:
+```
+ctr image pull registry.k8s.io/pause:3.9 #User containerd to pull the image
+mkdir -p /etc/containerd #Make a folder for the default config
+containerd config default \| tee /etc/containerd/config.toml #Output the current defaults.
+```
+Then find this line: `sandbox_image` (which in my case looked like this: `    sandbox_image = "registry.k8s.io/pause:3.8"` and set it to 3.9 (the one we downloaded previously).
+Then as suggested by the link - issue a restart: `systemctl restart containerd` from here the init command should *NOT* display this error: `kubeadm init`.
