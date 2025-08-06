@@ -83,5 +83,7 @@ There seems to be two potential fixes (I've automated number 2 as per the above)
 
 In either case this took me a **LONG** time to fix and put me off kubernetes. The logs were unclear and revealed very little and ultimately the defaults caused functionality problems not ideal. I wonder whether this is consistent with other operating systems.
 
+I've got a script to make sure this is set for next time [cgroup_check.sh](validation/cgroup_check.sh).
+
 ### Other notes
 You can reset like this: `kubeadm reset`.
