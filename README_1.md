@@ -87,3 +87,17 @@ I've got a script to make sure this is set for next time [cgroup_check.sh](valid
 
 ### Other notes
 You can reset like this: `kubeadm reset`.
+
+### kube-system
+We now have the four components required to run kubernetes, these are:
+
+| Component    | Purpose/analogy | Config location | When it fails | 
+| ------------ | ------- | --------------- | ------------- |
+| etcd         | Database<br>**Medical records system** — stores everything: patients, history, assignments| `/etc/kubernetes/manifests/etcd.yaml` | Cluster becomes readonly | 
+| kube-apiserver | API server/central interface<br>**Front desk / receptionist** — receives all requests, routes them | `/etc/kubernetes/manifests/kube-apiserver.yaml` | Interactivity is impossible | 
+| kube-controller-manager | Control messages<br>**Operations manager** — walks around making sure everyone’s where they should be and tasks get done | `/etc/kubernetes/manifests/kube-controller-manager.yaml` | State is lost/inconsistent, pods don't self heal | 
+| kube-scheduler | Selects where things should run<br>**Triage nurse** — decides which room (node) each new patient (pod) goes to| `/etc/kubernetes/manifests/kube-scheduler.yaml` | Pods remaining in `pending` state and are not allocated to workers |
+
+These components are known as the control plane. All four of them are required to be functional to have a kubernetes system running.
+Attached is a diagram which explains more clearly their relationships eith eachother
+![Kubernetes Architecture](diagrams/kube-system.png)
