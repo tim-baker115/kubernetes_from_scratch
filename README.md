@@ -21,7 +21,7 @@ Finally after all this we have a bootable, fully functiona ubuntu server... Usin
 | --------- | ------- |
 | Wifi Only (remember I installed at my neighbors) | Switch Wifi off by removing wifi related configs (in my case `rm /etc/netplan/50-cloud-init.yaml`).<br>Create a new file in [/etc/netplan/01-netcfg.yaml](configs/01-netcfg.yaml).<br>Make sure ownership is root and permission are 600 (`chown root: /etc/netplan/01-netcfg.yaml; chmod 600 /etc/netplan/01-netcfg.yaml`. |
 | IPv6 is everywhere?!| Disable in grub.<br>edit `/etc/default/grub` to have `GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"` in.<br>run `update-grub` |
-| DHCP is set | Change the netcfg to be static (see [/etc/netplan/01-netcfg.yaml](configs/01-netcfg.yaml)). |
+| DHCP is set | Change the netcfg to be static (see [/etc/netplan/01-netcfg.yaml](configs/01-netcfg.yaml#L6-L12)). |
 | Update the OS | `apt update && sudo apt full-upgrade -y` |
 
 Finally after all this we have a static, no IPv6 wired system which I can transport to my home and plug in and ssh into.
