@@ -27,11 +27,16 @@ I0806 12:30:23.084037    4436 version.go:256] remote version is much newer: v1.3
 [preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
 W0806 12:30:23.612342    4436 checks.go:844] detected that the sandbox image "registry.k8s.io/pause:3.8" of the container runtime is inconsistent with that used by kubeadm.It is recommended to use "registry.k8s.io/pause:3.9" as the CRI sandbox image.
 ```
-This isn't a problem as such (ignoring is fine) but I wanted to fix it. There's a snippet on how to set the sandbox image in this url https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd. It's pretty much the following:
+Fixing this warning (safe to ignore).
+There's a snippet on how to set the sandbox image in this url https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd.
+It's pretty much the following:
 ```
 ctr image pull registry.k8s.io/pause:3.9 #User containerd to pull the image
 mkdir -p /etc/containerd #Make a folder for the default config
-containerd config default \| tee /etc/containerd/config.toml #Output the current defaults.
+containerd config default \| tee /etc/containerd/config.toml #Output the current defaults to the toml file.
+sed -i 's/pause:3.8/pause:3.9/1' /etc/containerd/config.toml #Search for pause:3.8 and replace it.
+systemctl restart containerd #Restart containerd
+systemctl restart kubelet #Restart kubelet
+kubeadm reset -f #Reset the init process
+kubeadm init #Init again!
 ```
-Then find this line: `sandbox_image` (which in my case looked like this: `    sandbox_image = "registry.k8s.io/pause:3.8"` and set it to 3.9 (the one we downloaded previously).
-Then as suggested by the link - issue a restart: `systemctl restart containerd` from here the init command should *NOT* display this error: `kubeadm init`.
