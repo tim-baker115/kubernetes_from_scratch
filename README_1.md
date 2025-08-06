@@ -40,3 +40,28 @@ systemctl restart kubelet #Restart kubelet
 kubeadm reset -f #Reset the init process
 kubeadm init #Init again!
 ```
+
+###Running kubernetes
+Run the following: `kubectl get nodes` to get the nodes. This resulted in the following error:
+```
+root@labbox:~$ kubectl get nodes
+E0806 12:53:54.002070   15281 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+E0806 12:53:54.002449   15281 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+E0806 12:53:54.003805   15281 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+E0806 12:53:54.004055   15281 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+E0806 12:53:54.005390   15281 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+```
+This looks to be a problem with how kubectl is falled. This is quite a common problem and can be solved following the instructions in this post: https://discuss.kubernetes.io/t/couldnt-get-current-server-api-group-list-get-http-localhost-8080-api-timeout-32s-dial-tcp-127-0-0-1-connect-connection-refused/25471/5
+
+```
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+export KUBECONFIG=$HOME/.kube/config
+```
+Now the same command reveals something slightly more interesting!!
+```
+root@labbox:~$ kubectl get nodes
+NAME     STATUS     ROLES           AGE   VERSION
+labbox   NotReady   control-plane   14m   v1.30.14
+```
