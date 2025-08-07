@@ -30,7 +30,7 @@ Fixing this warning (safe to ignore).
 There's a snippet on how to set the sandbox image in this url [override-pause-image-containerd](https://kubernetes.io/docs/setup/production-environment/container-runtimes/#override-pause-image-containerd).
 It's pretty much the following:
 ```
-ctr image pull registry.k8s.io/pause:3.9 #User containerd to pull the image
+ctr image pull registry.k8s.io/pause:3.10 #User containerd to pull the image
 mkdir -p /etc/containerd #Make a folder for the default config
 containerd config default \| tee /etc/containerd/config.toml #Output the current defaults to the toml file.
 sed -i 's/pause:3.9/pause:3.10/1' /etc/containerd/config.toml #Search for pause:3.9 and replace it.
