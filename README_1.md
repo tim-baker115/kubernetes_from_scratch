@@ -12,7 +12,7 @@ It's worth noting at this point; this is not a complete kubernetes install, we h
 | No GPG key| `curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key \| sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg`|
 | No repo| Add this file in [/etc/apt/sources.list.d/kubernetes.list](configs/kubernetes.list) |
 | Install missing packages| `apt-get update; apt-get install -y kubelet kubeadm kubectl`|
-| Have things installed? | `for cmd in "kubeadm version" "kubelet --version" "kubectl version --client"; do $cmd \| grep -q "1.30" && echo "$cmd ran ok" \|\| echo "something went wrong with $cmd"; done`<br>`systemctl status kubelet` |
+| Have things installed? | `for cmd in "kubeadm version" "kubelet --version" "kubectl version --client"; do $cmd \| grep -q "1.33" && echo "$cmd ran ok" \|\| echo "something went wrong with $cmd"; done`<br>`systemctl status kubelet` |
 
 ### Starting kubernetes
 Assuming everything is up and running we can now initialize:
