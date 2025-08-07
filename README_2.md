@@ -1,5 +1,5 @@
 # Installing cilium
-Cilium is a network overlay which simplifies and controls communication between pods. They have an [install script](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli) which I've also pasted below:
+Cilium is a *"framework for synamically managing networking"* (CNI - container network interface) which simplifies and controls communication between pods in a dynamic way. They have an [install script](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli) which I've also pasted below:
 
 ```
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -48,3 +48,6 @@ Image versions         cilium             quay.io/cilium/cilium:v1.18.0@sha256:d
                        cilium-envoy       quay.io/cilium/cilium-envoy:v1.34.4-1753677767-266d5a01d1d55bd1d60148f991b98dac0390d363@sha256:231b5bd9682dfc648ae97f33dcdc5225c5a526194dda08124f5eded833bf02bf: 1
                        cilium-operator    quay.io/cilium/operator-generic:v1.18.0@sha256:398378b4507b6e9db22be2f4455d8f8e509b189470061b0f813f0fabaf944f51: 1
 ```
+
+# Istio
+Istio is a service mesh. This takes care of layer 7 connectivity (applications, things like mtls) and compliments cilium to some degree; however there are different methods of running the CNI and service mesh (some of the technologies overlap).
