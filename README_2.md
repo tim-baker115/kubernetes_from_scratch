@@ -15,7 +15,7 @@ rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 At this point cilium cli is installed in `/usr/local/bin` you can update it as follows.
 `/usr/local/bin/cilium install --version v1.18.0`
 
-As cilium uses it's own proxy (envoy) you may need to redo the init to *not* have the kube-system proxy:
+As cilium uses it's own proxy (envoy) you needn't run kube-proxy in parallel, the following step maybe needed:
 `kubeadm init --skip-phases=addon/kube-proxy`
 
 Once complete the pods should (eventually) start running:
@@ -50,9 +50,6 @@ Image versions         cilium             quay.io/cilium/cilium:v1.18.0@sha256:d
                        cilium-operator    quay.io/cilium/operator-generic:v1.18.0@sha256:398378b4507b6e9db22be2f4455d8f8e509b189470061b0f813f0fabaf944f51: 1
 ```
 
-### Monitoring
-To monitor live traffic run the following:
-`cilium monitor -v`
 
 ### Cilium sidecars
 Sidecars run on a per node basis, their name role and purpose is defined below. 
@@ -63,14 +60,52 @@ Sidecars run on a per node basis, their name role and purpose is defined below.
 | operator | The networking control plane | Manages IP addressing<br>Garbage-collects identities<br>Coordinates cilium-agent behaviour|
 | envoy | Layer 7 management and information | Layer 7 policies<br>HTTP/gRPC inspection<br>Hubble with L7 visibility |
 
-### L7 monitoring
-Cilium includes envoy by default, however each pod will need to have a different definition to utilise traffic scanning. 
-It's worth noting that you can see if it's running and see live traffic flows as follows:
-
-`cilium monitor --type l7 #Is l7 monitoring enabled?` 
-`cilium monitor -v #Live traffic flows!` 
 
 # Istio
-Istio is a service mesh. This takes care of layer 7 connectivity (applications, things like mtls, weighted traffic) and compliments cilium to some degree; however there are different methods of running the CNI and service mesh (some of the technologies overlap). Running istio by default will add a sidecar. As I'm short of resources and want a high tech POC, I'm going to do **CNI CHAINING** (I have a vague idea what this is...).
+Istio is a *service mesh*. This takes care of layer 7 connectivity (things like mtls, weighted traffic, zero trust etc) and compliments cilium to some degree; however there are different methods of running the CNI and service mesh (some of the technologies overlap). Running istio by default will add a sidecar. As I'm short of resources and want a high tech POC, I'm going to do **CNI CHAINING** (I have a vague idea what this is...).
 
+## Sidecar vs ambient
+Istio can be setup with and without a sidecar (without is called ambiet mode). Given I'm short of resource I'll pick ambient mode. [Differences are detailed here](https://istio.io/latest/docs/overview/dataplane-modes/).
 
+## Install
+This can be completed as follows:
+```
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.26.3 sh -
+mv istio-1.26.3/bin/istioctl /usr/local/bin/
+rm -rf istio-1.26.3/
+istioctl install --set profile=ambient -y
+```
+Then we have our first warning/error - this needs resolving. I vaguely remember seeing this mentioned in the [cilium documentation](https://docs.cilium.io/en/latest/network/servicemesh/istio/). 
+```
+❗ detected Cilium CNI with 'cni-exclusive=true'; this must be set to 'cni-exclusive=false' in the Cilium configuration
+```
+
+Fixing this is a bit cryptic if you've never used kubernetes, but it was quite simple - run this command:
+
+`kubectl -n kube-system edit configmap cilium-config`
+
+Look out for the line `cni-exclusive=false`  and set it to true then write quit to save. Job done, now we'll restart the daemonset.
+
+`kubectl rollout restart daemonset cilium -n kube-system`
+
+I'm gpoing to restart the istio install and see if the error clears... It has but now I have a pod in a pending state.
+
+```
+root@labbox:~$ kubectl get pods -n istio-system
+NAME                      READY   STATUS    RESTARTS   AGE
+istio-cni-node-vs2d4      0/1     Running   0          5m24s
+istiod-5889b8c87b-zmms6   0/1     Pending   0          10m
+```
+This pending node looks ominous - Let's run some diagnostics on it. 
+
+```
+kubectl describe pod -n istio-system istiod-5889b8c87b-zmms6
+<snip>
+Events:
+  Type     Reason            Age                  From               Message
+  ----     ------            ----                 ----               -------
+  Warning  FailedScheduling  3m34s (x3 over 13m)  default-scheduler  0/1 nodes are available: 1 node(s) had untolerated taint {node-role.kubernetes.io/control-plane: }. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+```
+
+OK, googling this exact error [led me to this step](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#control-plane-node-isolation)
+That looks simple enough and makes sense, some pods can't run on the control pane, you can sort that by taining the nodes. Good to know!
