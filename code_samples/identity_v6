@@ -1,0 +1,17 @@
+fn is_ipv6_bindable() -> bool {
+    let test_addr = "[::1]:0".parse::<SocketAddr>();
+    if let Ok(addr) = test_addr {
+        if std::net::TcpListener::bind(addr).is_ok() {
+            return true;
+        }
+    }
+    false
+}
+
+let use_ipv6 = is_ipv6_bindable() && env::var("ENABLE_IPV6").unwrap_or_default() != "false";
+let address = if use_ipv6 {
+    "::".to_string()
+} else {
+    "0.0.0.0".to_string()
+};
+// Build the final addresses with chosen family...
