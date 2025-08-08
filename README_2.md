@@ -88,7 +88,9 @@ Look out for the line `cni-exclusive=false`  and set it to true then write quit 
 
 `kubectl rollout restart daemonset cilium -n kube-system`
 
-I'm gpoing to restart the istio install and see if the error clears... It has but now I have a pod in a pending state.
+I'm going to restart the istio install and see if the error clears... It has but now I have a pod in a pending state.
+
+It's worth noting that istio automatically creates a new namespace called `istio-system` be mindful of this going forward as not adding it to specific commands hides the output away.
 
 ```
 root@labbox:~$ kubectl get pods -n istio-system
@@ -109,3 +111,44 @@ Events:
 
 OK, googling this exact error [led me to this step](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#control-plane-node-isolation)
 That looks simple enough and makes sense, some pods can't run on the control pane, you can sort that by taining the nodes. Good to know!
+
+Taint by doing the following:
+`kubectl taint nodes --all node-role.kubernetes.io/control-plane-`
+
+OK, now I've restarted and ztunnel isn't running
+```
+root@labbox:~$ kubectl get pods -n istio-system -l app=ztunnel -o wide
+NAME            READY   STATUS             RESTARTS     AGE   IP           NODE     NOMINATED NODE   READINESS GATES
+ztunnel-lqbvz   0/1     CrashLoopBackOff   1 (4s ago)   5s    10.0.0.135   labbox   <none>           <none>
+```
+
+This looks more interesting; at this point there's no reason for it not to run, can we get logs out of the crashloop? Let's have a look. Note that if the crash loop is frequent, you can pass `--previous` to view output from the previous crashed container.
+
+```kubectl logs -n istio-system ztunnel-lqbvz```
+
+This outputs the logs and the breaks, I've trimmed the relevant bits so we can see whats happening:
+```
+2025-08-07T22:02:44.754344Z	warn	config	failed to determine if IPv6 was disabled; continuing anyways, but this may fail	err=Os { code: 2, kind: NotFound, message: "No such file or directory" }
+2025-08-07T22:02:44.754576Z	info	ztunnel	version: version.BuildInfo{Version:"d4e543a299d5e1fb199449ed285758c090687452", GitRevision:"d4e543a299d5e1fb199449ed285758c090687452", RustVersion:"1.85.1", BuildProfile:"release", BuildStatus:"Clean", GitTag:"1.26.2-2-gd4e543a", IstioVersion:"1.26.3"}	
+2025-08-07T22:02:44.754806Z	info	ztunnel	running with config: proxy: true
+<snip>
+statsAddr: !SocketAddr '[::]:15020'
+readinessAddr: !SocketAddr '[::]:15021'
+inboundAddr: '[::]:15008'
+inboundPlaintextAddr: '[::]:15006'
+outboundAddr: '[::]:15001'
+<snip>
+Caused by:
+    Address family not supported by protocol (os error 97)
+```
+
+I've actually seen this error before; it's due to an attempt at making a service listen on a IPv6 address - see the addresses in the middle? IPv6 addresses.
+
+Given theres an error "No such file or directory" I suspect this process is testing the contents of a `/proc` likely: `/proc/sys/net/ipv6/conf/all/disable_ipv6` that's fine... except we disabled IPv6 entirely, if it's disabled at a kernel level all the procs cease to exist. It's not just disabled - the kernels not even aware of it... This is a problem with their code and I [raised it as an issue here](https://github.com/istio/ztunnel/issues/1611).
+
+We can work around it by disabling IPv6 at an OS level and enabling at a kernel level. A painful resolution... 
+
+... Incidently I asked chatGPT to write me some psuedocode to solve this in rust which it did [patch here](code_samples/identity_v6)... *I didn't have the heart to add this as part of the issue though, it's not my code!*
+
+
+
