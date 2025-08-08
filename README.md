@@ -1,38 +1,28 @@
 # Kubernetes from scratch
+The aim of this repo will be to document my progress learning kubernetes. It will break down each of the challenges I've faced in a set of readme's.
 
-The aim of this repo will be to document my progress learning kubernetes. I have a set of problems which each need a solution; this may reveal more problems and require more solutions. The process won't be "complete" until all problems are solved.
+## Goal
+There will be a set of pods which will each have a predefined purpose. The ultimate goal is to use machine learning techniques (known ones, we're not breaking any new ground here!). To identify shares within the FTSE100 which should be bought, sold or held. 
 
-## Initial problems/solutions:
+I'll also use technologies which might not be necessary for a bit more expertise (e.g there's no benefit of installing itsio - but it looks cool).
 
-### Hardware problems
-| Problem    | Solution |
-| --------- | ------- |
-| No computer (I use a laptop for work) | Buy a cheap laptop from ebay (recommend lenovo thinkcentre with a lot of memory). |
-| No keyboard           | Oh dear... I had a feeling this might happen. Create an automated boot ISO...        |
-| No video          | I have faith the video works, but my TV was running at 4k... Find an alternateive monitor (my neighbors helped).   |
-| USB stick didn't work/boot          | The [automated cloudinit stuff](https://canonical-subiquity.readthedocs-hosted.com/en/latest/howto/autoinstall-quickstart.html) I'd googled didn't work with the uefi boot... Back to square one.        |
-| Need a keyboard now | Buy a keyboard (a cheap one).        |
-| USB stick still doesn't work          | Let's go back to the basics, use the basic ubuntu server image.        |
+Components and their purpose detailed below:
 
-Finally after all this we have a bootable, fully functiona ubuntu server... Using wifi. Some small changes required to sort that:
+| Component | Purpose | Notes |
+| --------- | ------- | ---|
+| PosgresDB | Store stock exchange data | Requires persistent storage |
+| Scraper | Retrieve FTSE data | Use yfinance initially |
+| ML Model 1 | Linear regression | Python |
+| ML Model 2 | XGBoost | Python |
+| ML Model 3 | Black Scholes/GARCH | Python |
+| Treasury | Simulates bank loans, considers risk and returns of the models | £100,000 limit |
+| Prometheus | Graphing and trending | |
+| Grafana | Cooler looking graphs | |
+| ArgoCD | Simplification of the above | |
 
-### OS Problems/solutions
-| Problem    | Solution |
-| --------- | ------- |
-| Wifi Only (remember I installed at my neighbors) | Switch Wifi off by removing wifi related configs (in my case `rm /etc/netplan/50-cloud-init.yaml`).<br>Create a new file in [/etc/netplan/01-netcfg.yaml](configs/01-netcfg.yaml).<br>Make sure ownership is root and permission are 600 (`chown root: /etc/netplan/01-netcfg.yaml; chmod 600 /etc/netplan/01-netcfg.yaml`. |
-| IPv6 is everywhere?!| Disable in grub.<br>edit `/etc/default/grub` to have `GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"` in.<br>run `update-grub` |
-| DHCP is set | Change the netcfg to be static (see [/etc/netplan/01-netcfg.yaml](configs/01-netcfg.yaml#L6-L12)). |
-| Update the OS | `apt update && sudo apt full-upgrade -y` |
-| Install some packages | `apt install -y htop git curl wget vim tmux apt-transport-https` |
-
-Finally after all this we have a static, no IPv6 wired system which I can transport to my home and plug in and ssh into.
-
-### Kubernetes prerequisites
-| Prerequisite    | Solution |
-| --------- | ------- |
-| IP Forwarding | Create a new file in [/etc/sysctl.d/10-ip-forwarding.conf](configs/10-ip-forwarding.conf). Run `sysctl --system` |
-| No swap | `swapoff -a`<br>`sed -i '/ swap / s/^/#/' /etc/fstab` |
-| Install containerd | `apt install -y containerd; systemctl restart containerd; systemctl enable containerd` |
-| Enable bridge-nf-call-iptables | `sysctl net.bridge.bridge-nf-call-iptables \|\| echo "br_netfilter" > /etc/modules-load.d/k8s.conf \|\| modprobe br_netfilter` |
-
-We may as well reboot at this point and make sure it all survives a reboot... I've asked chatGPT to make me a [validation script](validation/kubernetes_prerequisites.sh). 
+## Index
+1. [Hardware](README/1.%20hardware.md)
+2. [Operating system](README/2.%20operating%20system.md)
+3. [Kubernetes prerequisites](README/3.%20kubernetes%20prerequisites.md)
+4. [Kubernetes install](README/4.%20kubernetes%20install.md)
+5. [Networking](README/5.%20networking.md)
