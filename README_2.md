@@ -142,13 +142,31 @@ Caused by:
     Address family not supported by protocol (os error 97)
 ```
 
-I've actually seen this error before; it's due to an attempt at making a service listen on a IPv6 address - see the addresses in the middle? IPv6 addresses.
+I've actually seen this error on the final line before; it's due to an attempt at making a service listen on a IPv6 address - see the addresses in the middle? IPv6 addresses.
 
-Given theres an error "No such file or directory" I suspect this process is testing the contents of a `/proc` likely: `/proc/sys/net/ipv6/conf/all/disable_ipv6` that's fine... except we disabled IPv6 entirely, if it's disabled at a kernel level all the procs cease to exist. It's not just disabled - the kernels not even aware of it... This is a problem with their code and I [raised it as an issue here](https://github.com/istio/ztunnel/issues/1611).
+Given theres a warning on the first line *"No such file or directory"* I suspect this process is testing the contents of a `/proc` likely: `/proc/sys/net/ipv6/conf/all/disable_ipv6` that's fine... except we disabled IPv6 entirely, if it's disabled at a kernel level all the procs cease to exist. It's not just disabled - the kernels not even aware of it... This is a problem with the istio ztunnel code and I [raised it as an issue here](https://github.com/istio/ztunnel/issues/1611).
 
 We can work around it by disabling IPv6 at an OS level and enabling at a kernel level. A painful resolution... 
 
 ... Incidently I asked chatGPT to write me some psuedocode to solve this in rust which it did [patch here](code_samples/identity_v6)... *I didn't have the heart to add this as part of the issue though, it's not my code!*
 
-
-
+So now we're going to enable IPv6 in grub and setup a sysctl to ensure it's disabled by the OS. This will keep all the /proc's in place and allow ztunnel to function.
+```
+sed -i 's/ipv6.disable=1//1' /etc/default/grub
+update-grub
+cat <<EOF >/etc/sysctl.d/100-disable-ipv6.conf 
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+net.ipv6.conf.enp0s31f6.disable_ipv6 = 1
+EOF
+reboot
+```
+Now when the server comes back online we should have this file: `/proc/sys/net/ipv6/conf/all/disable_ipv6` which should reveal a 1 when catted. We should also (fingers crossed here) have ztunnel up and running. Output from my system below:
+```
+root@labbox:~$ cat /proc/sys/net/ipv6/conf/all/disable_ipv6 
+1
+root@labbox:~$ kubectl get pods -n istio-system -l app=ztunnel -o wide
+NAME            READY   STATUS    RESTARTS   AGE   IP          NODE     NOMINATED NODE   READINESS GATES
+ztunnel-r64dl   1/1     Running   0          10h   10.0.0.50   labbox   <none>           <none>
+```
