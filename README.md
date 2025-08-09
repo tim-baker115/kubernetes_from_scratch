@@ -15,3 +15,4 @@ The aim of this repo will be to document my progress learning kubernetes.
 3. [Kubernetes prerequisites](README/3.%20kubernetes%20prerequisites.md)
 4. [Kubernetes install](README/4.%20kubernetes%20install.md)
 5. [Networking](README/5.%20networking.md)
+6. [Postgres](README/6.%20postgres.md)
