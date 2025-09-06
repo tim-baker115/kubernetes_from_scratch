@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-runner
+  namespace: github-runners
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: github-runner
+  template:
+    metadata:
+      labels:
+        app: github-runner
+    spec:
+      initContainers:
+      - name: install-kubectl
+        image: bitnami/kubectl:latest
+        command:
+          - sh
+          - -c
+          - |
+            cp /opt/bitnami/kubectl/bin/kubectl /runner
+        volumeMounts:
+        - name: runner-workdir
+          mountPath: /runner
+      containers:
+      - name: runner
+        image: summerwind/actions-runner:latest
+        env:
+        - name: RUNNER_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: RUNNER_REPO
+          value: "tim-baker115/kubernetes_from_scratch"
+        - name: RUNNER_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-runner-token
+              key: RUNNER_TOKEN
+        - name: RUNNER_WORKDIR
+          value: "/runner/_work"
+        volumeMounts:
+        - name: runner-workdir
+          mountPath: /runner
+      volumes:
+      - name: runner-workdir
+        emptyDir: {}
