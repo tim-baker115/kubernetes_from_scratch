@@ -17,3 +17,4 @@ The aim of this repo will be to document my progress learning kubernetes.
     1. [Kubernetes components](README/4.1.%20kubernetes%20components.md)
 5. [Networking](README/5.%20networking.md)
 6. [Postgres](README/6.%20postgres.md)
+7. [Github Runners](README/7.%20githubrunners.md)
