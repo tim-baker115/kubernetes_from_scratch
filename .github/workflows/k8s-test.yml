@@ -21,3 +21,4 @@ jobs:
         run: |
           /runner/kubectl version --client
           /runner/kubectl get nodes
+          /runner/kubectl get pods -n kube-system -o wide -A
