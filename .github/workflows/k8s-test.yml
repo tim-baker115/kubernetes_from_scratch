@@ -1,0 +1,19 @@
+name: Kubernetes Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-runner:
+    runs-on: self-hosted   # this tells GitHub to use your runner
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Show environment
+        run: |
+          echo "Hello from $(hostname)"
+          echo "Runner working dir: $RUNNER_WORKDIR"
+          kubectl get nodes
